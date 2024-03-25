@@ -10,6 +10,12 @@ export class UsersService {
         return token
     }
 
+    async signInUser(userName: string, password: string) {
+        const userId = await this.usersRepository.signInUser(userName, password)
+        const token = await this.usersRepository.generateToken(userId)
+        return token
+    }
+
     async verifyToken(token: string) {
         const tokenInfo = await this.usersRepository.verifyToken(token)
         return tokenInfo

@@ -7,6 +7,7 @@ import { signUpUserSchema } from "./schemas/signUpUserSchema"
 import { UsersRepository } from "./usersRepository"
 import { UsersService } from "./usersService"
 import { SignUpUserInput } from "./inputs/signUpUserInput"
+import { signInUserSchema } from "./schemas/signInUserSchema"
 
 export const router = express.Router()
 
@@ -15,7 +16,7 @@ async function runInTransaction<T>(func: (connection: PoolConnection) => T): Pro
     await connection.beginTransaction()
 
     try {
-        const output = func(connection)
+        const output = await func(connection)
         await connection.commit()
         return output
     } catch (error) {
@@ -34,6 +35,24 @@ router.post("/", validation(signUpUserSchema), async (req, res) => {
             const userData = new SignUpUserInput(userName, password, country, userAge)
 
             const token = await usersService.signUpUser(userData)
+            return token
+        })
+
+        res.json({ token })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.get("/", validation(signInUserSchema), async (req, res) => {
+    try {
+        const token = await runInTransaction(async (connection) => {
+            const usersRepository = new UsersRepository(connection)
+            const usersService = new UsersService(usersRepository)
+
+            const { userName, password } = req.body
+            const token = await usersService.signInUser(userName, password)
             return token
         })
 

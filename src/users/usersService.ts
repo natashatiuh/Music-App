@@ -16,8 +16,13 @@ export class UsersService {
         return token
     }
 
+    async getUser(userId: string) {
+        const userName = await this.usersRepository.getUser(userId)
+        return userName
+    }
+
     async verifyToken(token: string) {
-        const tokenInfo = await this.usersRepository.verifyToken(token)
-        return tokenInfo
+        const userId = await this.usersRepository.verifyToken(token)
+        return userId
     }
 }

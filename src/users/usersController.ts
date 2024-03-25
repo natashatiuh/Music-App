@@ -8,6 +8,7 @@ import { UsersRepository } from "./usersRepository"
 import { UsersService } from "./usersService"
 import { SignUpUserInput } from "./inputs/signUpUserInput"
 import { signInUserSchema } from "./schemas/signInUserSchema"
+import { MyRequest } from "./requestDefinition"
 
 export const router = express.Router()
 
@@ -45,7 +46,7 @@ router.post("/", validation(signUpUserSchema), async (req, res) => {
     }
 })
 
-router.get("/", validation(signInUserSchema), async (req, res) => {
+router.get("/sign-in", validation(signInUserSchema), async (req, res) => {
     try {
         const token = await runInTransaction(async (connection) => {
             const usersRepository = new UsersRepository(connection)
@@ -57,6 +58,23 @@ router.get("/", validation(signInUserSchema), async (req, res) => {
         })
 
         res.json({ token })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.get("/", auth(), async (req, res) => {
+    try {
+        const user = await runInTransaction(async (connection) => {
+            const usersRepository = new UsersRepository(connection)
+            const usersService = new UsersService(usersRepository)
+
+            const user = await usersService.getUser((req as MyRequest).userId)
+            return user
+        })
+
+        res.json({ user })
     } catch (error) {
         console.log(error)
         res.json({ success: false })

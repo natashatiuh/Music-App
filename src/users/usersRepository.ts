@@ -34,7 +34,10 @@ export class UsersRepository {
         `
         const params = [userName, password]
 
-        const [userId]: any = await this.connection.execute(query, params)
+        const [rows]: any = await this.connection.execute(query, params)
+        if (rows.length === 0) throw new Error("Incorrect credentials")
+
+        const userId = rows[0]
         return userId
     }
 

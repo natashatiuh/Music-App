@@ -16,7 +16,7 @@ async function runInTransaction<T>(func: (connection: PoolConnection) => T): Pro
     await connection.beginTransaction()
 
     try {
-        const output = func(connection)
+        const output = await func(connection)
         await connection.commit()
         return output
     } catch (error) {

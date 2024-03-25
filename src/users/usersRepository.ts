@@ -29,8 +29,8 @@ export class UsersRepository {
 
     async signInUser(userName: string, password: string) {
         const query = `
-        SELECT id FROM users
-        WHERE userName = ? AND password = ?
+            SELECT id FROM users
+            WHERE userName = ? AND password = ?
         `
         const params = [userName, password]
 

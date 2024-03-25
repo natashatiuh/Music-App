@@ -27,6 +27,17 @@ export class UsersRepository {
         return token
     }
 
+    async signInUser(userName: string, password: string) {
+        const query = `
+        SELECT id FROM users
+        WHERE userName = ? AND password = ?
+        `
+        const params = [userName, password]
+
+        const [userId]: any = await this.connection.execute(query, params)
+        return userId
+    }
+
     async verifyToken(token: string) {
         const secretKey: any = process.env.SECRET_KEY
         const tokenInfo: any = jwt.verify(token, secretKey)

@@ -1,7 +1,8 @@
-import { PoolConnection } from "mysql2/promise"
+import { PoolConnection, RowDataPacket } from "mysql2/promise"
 import { SignUpUserInput } from "./inputs/signUpUserInput"
 import { v4 } from "uuid"
-import jwt from "jsonwebtoken"
+import jwt, { Secret } from "jsonwebtoken"
+import { UserEntity } from "./entities/userEntity"
 
 export class UsersRepository {
     constructor(private connection: PoolConnection) {}
@@ -22,22 +23,23 @@ export class UsersRepository {
     }
 
     async generateToken(userId: string) {
-        const secretKey: any = process.env.SECRET_KEY
+        const secretKey: Secret | undefined = process.env.SECRET_KEY as Secret
         const token = jwt.sign({ userId: userId }, secretKey)
         return token
     }
 
-    async signInUser(userName: string, password: string) {
+    async signInUser(userName: string, password: string): Promise<string> {
         const query = `
             SELECT id FROM users
             WHERE userName = ? AND password = ?
         `
         const params = [userName, password]
 
-        const [rows]: any = await this.connection.execute(query, params)
+        const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
+        console.log([rows])
         if (rows.length === 0) throw new Error("Incorrect credentials")
 
-        const userId = rows[0].id
+        const userId: string = rows[0]?.id
         return userId
     }
 
@@ -48,16 +50,25 @@ export class UsersRepository {
         `
         const params = [userId]
 
-        const [rows]: any = await this.connection.execute(query, params)
+        const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
+        const userInfo = rows[0]
 
-        const user = rows[0]
+        const user = new UserEntity(userInfo?.userName, userInfo?.password, userInfo?.country, userInfo?.userAge)
+
         return user
     }
 
     async verifyToken(token: string) {
-        const secretKey: any = process.env.SECRET_KEY
-        const tokenInfo: any = jwt.verify(token, secretKey)
+        const secretKey: Secret = process.env.SECRET_KEY as Secret
+        const tokenInfo = jwt.verify(token, secretKey) as jwt.JwtPayload
 
         return tokenInfo.userId
     }
+}
+
+interface IGetUserQueryResult extends RowDataPacket {
+    userName: string
+    password: string
+    country: string
+    userAge: number
 }

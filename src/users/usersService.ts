@@ -17,12 +17,12 @@ export class UsersService {
     }
 
     async getUser(userId: string) {
-        const userName = await this.usersRepository.getUser(userId)
-        return userName
+        const user = await this.usersRepository.getUser(userId)
+        return user
     }
 
     async verifyToken(token: string) {
-        const userId = await this.usersRepository.verifyToken(token)
+        const userId: string = await this.usersRepository.verifyToken(token)
         return userId
     }
 }

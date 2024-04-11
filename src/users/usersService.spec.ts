@@ -47,4 +47,18 @@ describe("Users Service", () => {
 
         expect(userId).toEqual(signInUserId)
     })
+
+    test("username should be changed", async () => {
+        const userData = new SignUpUserInput("Olena", "12121212", "Spain", 25)
+        const usersService = await createUsersService()
+
+        const token = await usersService.signUpUser(userData)
+        const userId = await usersService.verifyToken(token)
+
+        await usersService.changeUserName(userId, "Alena")
+
+        const newUserNameUser = await usersService.getUser(userId)
+
+        expect(newUserNameUser.userName).toEqual("Alena")
+    })
 })

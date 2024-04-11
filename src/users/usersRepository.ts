@@ -45,8 +45,8 @@ export class UsersRepository {
 
     async getUser(userId: string) {
         const query = `
-        SELECT userName, password, country, userAge FROM users
-        WHERE id = ?
+            SELECT userName, password, country, userAge FROM users
+            WHERE id = ?
         `
         const params = [userId]
 
@@ -56,6 +56,19 @@ export class UsersRepository {
         const user = new UserEntity(userInfo?.userName, userInfo?.password, userInfo?.country, userInfo?.userAge)
 
         return user
+    }
+
+    async changeUserName(userId: string, newName: string) {
+        const query = `
+            UPDATE users
+            SET userName = ?
+            WHERE ID = ?
+        `
+        const params = [newName, userId]
+
+        const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
+        if (rows.length === 0) return false
+        return true
     }
 
     async verifyToken(token: string) {

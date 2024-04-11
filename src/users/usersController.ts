@@ -10,6 +10,7 @@ import { SignUpUserInput } from "./inputs/signUpUserInput"
 import { signInUserSchema } from "./schemas/signInUserSchema"
 import { MyRequest } from "./requestDefinition"
 import { changeUserNameSchema } from "./schemas/changeUserNameSchema"
+import { changePasswordSchema } from "./schemas/changePasswordSchema"
 
 export const router = express.Router()
 
@@ -84,13 +85,37 @@ router.get("/", auth(), async (req, res) => {
 
 router.patch("/", auth(), validation(changeUserNameSchema), async (req, res) => {
     try {
-        const user = await runInTransaction(async (connection) => {
+        await runInTransaction(async (connection) => {
             const usersRepository = new UsersRepository(connection)
             const usersService = new UsersService(usersRepository)
 
             const { newName } = req.body
             const wasUserNameChanged = await usersService.changeUserName((req as MyRequest).userId, newName)
             if (!wasUserNameChanged) {
+                res.json({ success: false })
+            } else {
+                res.json({ success: true })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.patch("/", auth(), validation(changePasswordSchema), async (req, res) => {
+    try {
+        await runInTransaction(async (connection) => {
+            const usersRepository = new UsersRepository(connection)
+            const usersService = new UsersService(usersRepository)
+
+            const { oldPassword, newPassword } = req.body
+            const wasPasswordChanged = await usersService.changePassword(
+                (req as MyRequest).userId,
+                oldPassword,
+                newPassword
+            )
+            if (!wasPasswordChanged) {
                 res.json({ success: false })
             } else {
                 res.json({ success: true })

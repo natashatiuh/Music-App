@@ -21,6 +21,11 @@ export class UsersService {
         return user
     }
 
+    async changeUserName(userId: string, newName: string) {
+        const wasUserNameChanged = await this.usersRepository.changeUserName(userId, newName)
+        return wasUserNameChanged
+    }
+
     async verifyToken(token: string) {
         const userId: string = await this.usersRepository.verifyToken(token)
         return userId

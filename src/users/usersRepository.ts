@@ -71,6 +71,19 @@ export class UsersRepository {
         return true
     }
 
+    async changePassword(userId: string, oldPassword: string, newPassword: string) {
+        const query = `
+            UPDATE users
+            SET password = ?
+            WHERE id = ? AND password = ?
+        `
+        const params = [newPassword, userId, oldPassword]
+
+        const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
+        if (rows.length === 0) return false
+        return true
+    }
+
     async verifyToken(token: string) {
         const secretKey: Secret = process.env.SECRET_KEY as Secret
         const tokenInfo = jwt.verify(token, secretKey) as jwt.JwtPayload

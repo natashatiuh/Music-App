@@ -26,6 +26,11 @@ export class UsersService {
         return wasUserNameChanged
     }
 
+    async changePassword(userId: string, oldPassword: string, newPassword: string) {
+        const wasPasswordChanged = await this.usersRepository.changePassword(userId, oldPassword, newPassword)
+        return wasPasswordChanged
+    }
+
     async verifyToken(token: string) {
         const userId: string = await this.usersRepository.verifyToken(token)
         return userId

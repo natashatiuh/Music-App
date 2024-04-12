@@ -31,6 +31,11 @@ export class UsersService {
         return wasPasswordChanged
     }
 
+    async changeCountry(userId: string, newCountry: string) {
+        const wasCountryChanged = await this.usersRepository.changeCountry(userId, newCountry)
+        return wasCountryChanged
+    }
+
     async verifyToken(token: string) {
         const userId: string = await this.usersRepository.verifyToken(token)
         return userId

@@ -84,6 +84,19 @@ export class UsersRepository {
         return true
     }
 
+    async changeCountry(userId: string, newCountry: string) {
+        const query = `
+            UPDATE users
+            SET country = ?
+            WHERE id = ?
+        `
+        const params = [newCountry, userId]
+
+        const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
+        if (rows.length === 0) return false
+        return true
+    }
+
     async verifyToken(token: string) {
         const secretKey: Secret = process.env.SECRET_KEY as Secret
         const tokenInfo = jwt.verify(token, secretKey) as jwt.JwtPayload

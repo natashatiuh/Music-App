@@ -75,4 +75,18 @@ describe("Users Service", () => {
 
         expect(newPasswordUser.password).toEqual("22222222")
     })
+
+    test("country should be changed", async () => {
+        const userData = new SignUpUserInput("Stepan", "12345678", "Moldova", 39)
+        const usersService = await createUsersService()
+
+        const token = await usersService.signUpUser(userData)
+        const userId = await usersService.verifyToken(token)
+
+        await usersService.changeCountry(userId, "Romania")
+
+        const newCountryUser = await usersService.getUser(userId)
+
+        expect(newCountryUser.country).toEqual("Romania")
+    })
 })

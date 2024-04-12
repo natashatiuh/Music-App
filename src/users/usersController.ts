@@ -11,6 +11,7 @@ import { signInUserSchema } from "./schemas/signInUserSchema"
 import { MyRequest } from "./requestDefinition"
 import { changeUserNameSchema } from "./schemas/changeUserNameSchema"
 import { changePasswordSchema } from "./schemas/changePasswordSchema"
+import { changeCountrySchema } from "./schemas/changeCountrySchema"
 
 export const router = express.Router()
 
@@ -83,7 +84,7 @@ router.get("/", auth(), async (req, res) => {
     }
 })
 
-router.patch("/", auth(), validation(changeUserNameSchema), async (req, res) => {
+router.patch("/user-name", auth(), validation(changeUserNameSchema), async (req, res) => {
     try {
         await runInTransaction(async (connection) => {
             const usersRepository = new UsersRepository(connection)
@@ -103,7 +104,7 @@ router.patch("/", auth(), validation(changeUserNameSchema), async (req, res) => 
     }
 })
 
-router.patch("/", auth(), validation(changePasswordSchema), async (req, res) => {
+router.patch("/password", auth(), validation(changePasswordSchema), async (req, res) => {
     try {
         await runInTransaction(async (connection) => {
             const usersRepository = new UsersRepository(connection)
@@ -116,6 +117,27 @@ router.patch("/", auth(), validation(changePasswordSchema), async (req, res) => 
                 newPassword
             )
             if (!wasPasswordChanged) {
+                res.json({ success: false })
+            } else {
+                res.json({ success: true })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.patch("/country", auth(), validation(changeCountrySchema), async (req, res) => {
+    try {
+        await runInTransaction(async (connection) => {
+            const usersRepository = new UsersRepository(connection)
+            const usersService = new UsersService(usersRepository)
+
+            const { newCountry } = req.body
+            const wasCountryChanged = await usersService.changeCountry((req as MyRequest).userId, newCountry)
+
+            if (!wasCountryChanged) {
                 res.json({ success: false })
             } else {
                 res.json({ success: true })

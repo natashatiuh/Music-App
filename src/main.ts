@@ -3,6 +3,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 dotenv.config()
 import { router as usersController } from "./users/usersController"
+import { router as artistsControler } from "./artists/artistsController"
 
 async function main() {
     const app = express()
@@ -12,6 +13,7 @@ async function main() {
     app.use(cors())
 
     app.use("/users", usersController)
+    app.use("/artists", artistsControler)
 
     app.listen(port, () => {
         console.log(`Server is listening on port ${port}`)

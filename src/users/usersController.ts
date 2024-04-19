@@ -1,6 +1,4 @@
 import express from "express"
-import { PoolConnection } from "mysql2/promise"
-import { pool } from "../common/dbPool"
 import { auth } from "../common/middlewares/auth"
 import { validation } from "../common/middlewares/validation"
 import { signUpUserSchema } from "./schemas/signUpUserSchema"
@@ -12,22 +10,9 @@ import { MyRequest } from "./requestDefinition"
 import { changeUserNameSchema } from "./schemas/changeUserNameSchema"
 import { changePasswordSchema } from "./schemas/changePasswordSchema"
 import { changeCountrySchema } from "./schemas/changeCountrySchema"
+import { runInTransaction } from "../common/transaction"
 
 export const router = express.Router()
-
-async function runInTransaction<T>(func: (connection: PoolConnection) => T): Promise<T> {
-    const connection = await pool.getConnection()
-    await connection.beginTransaction()
-
-    try {
-        const output = await func(connection)
-        await connection.commit()
-        return output
-    } catch (error) {
-        await connection.rollback()
-        throw error
-    }
-}
 
 router.post("/", validation(signUpUserSchema), async (req, res) => {
     try {
@@ -138,6 +123,25 @@ router.patch("/country", auth(), validation(changeCountrySchema), async (req, re
             const wasCountryChanged = await usersService.changeCountry((req as MyRequest).userId, newCountry)
 
             if (!wasCountryChanged) {
+                res.json({ success: false })
+            } else {
+                res.json({ success: true })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.delete("/", auth(), async (req, res) => {
+    try {
+        await runInTransaction(async (connection) => {
+            const usersRepository = new UsersRepository(connection)
+            const usersService = new UsersService(usersRepository)
+
+            const wasUserDeleted = await usersService.deleteUser((req as MyRequest).userId)
+            if (!wasUserDeleted) {
                 res.json({ success: false })
             } else {
                 res.json({ success: true })

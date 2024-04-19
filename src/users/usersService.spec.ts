@@ -4,17 +4,22 @@ import { pool } from "../common/dbPool"
 import { SignUpUserInput } from "./inputs/signUpUserInput"
 import { UsersRepository } from "./usersRepository"
 import { UsersService } from "./usersService"
+import { PoolConnection } from "mysql2/promise"
 
 jest.setTimeout(60 * 1000)
 
 describe("Users Service", () => {
+    let connection: PoolConnection
+
+    beforeAll(async () => {
+        connection = await pool.getConnection()
+    })
+
     beforeEach(async () => {
-        const connection = await pool.getConnection()
         await connection.query("TRUNCATE users")
     })
 
     async function createUsersService() {
-        const connection = await pool.getConnection()
         const usersRepository = new UsersRepository(connection)
         const usersService = new UsersService(usersRepository)
         return usersService
@@ -88,5 +93,21 @@ describe("Users Service", () => {
         const newCountryUser = await usersService.getUser(userId)
 
         expect(newCountryUser.country).toEqual("Romania")
+    })
+
+    test("user should be deleted", async () => {
+        const userData = new SignUpUserInput("Vasyl", "12121212", "Greece", 29)
+        const usersService = await createUsersService()
+
+        const token = await usersService.signUpUser(userData)
+        const userId = await usersService.verifyToken(token)
+
+        const user = await usersService.getUser(userId)
+
+        await usersService.deleteUser(userId)
+        const deletedUser = await usersService.getUser(userId)
+
+        expect(user.userName).toEqual("Vasyl")
+        expect(deletedUser.userName).toEqual(undefined)
     })
 })

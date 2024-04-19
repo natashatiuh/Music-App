@@ -36,6 +36,11 @@ export class UsersService {
         return wasCountryChanged
     }
 
+    async deleteUser(userId: string) {
+        const wasUserDeleted = await this.usersRepository.deleteUser(userId)
+        return wasUserDeleted
+    }
+
     async verifyToken(token: string) {
         const userId: string = await this.usersRepository.verifyToken(token)
         return userId

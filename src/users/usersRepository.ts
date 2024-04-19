@@ -97,6 +97,18 @@ export class UsersRepository {
         return true
     }
 
+    async deleteUser(userId: string) {
+        const query = `
+            DELETE FROM users
+            WHERE id = ?
+        `
+        const params = [userId]
+
+        const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
+        if (rows.length === 0) return false
+        return true
+    }
+
     async verifyToken(token: string) {
         const secretKey: Secret = process.env.SECRET_KEY as Secret
         const tokenInfo = jwt.verify(token, secretKey) as jwt.JwtPayload

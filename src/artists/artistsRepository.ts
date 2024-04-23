@@ -25,6 +25,21 @@ export class ArtistsRepository {
         return userId
     }
 
+    async signInArtist(userName: string, password: string) {
+        const query = `
+            SELECT id FROM artists
+            WHERE userName = ? AND password = ?
+        `
+        const params = [userName, password]
+
+        const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
+
+        if (rows.length === 0) throw new Error("Incorrect credentials!")
+
+        const userId: string = rows[0]?.id
+        return userId
+    }
+
     async getArtist(userId: string) {
         const query = `
             SELECT userName, password, country, artistAge

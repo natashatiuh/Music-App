@@ -4,18 +4,23 @@ import { pool } from "../common/dbPool"
 import { ArtistsRepository } from "./artistsRepository"
 import { ArtistsService } from "./artistsService"
 import { SignUpArtistInput } from "./inputs/signUpArtistInput"
+import { PoolConnection } from "mysql2/promise"
 dotenv.config()
 
 jest.setTimeout(60 * 1000)
 
 describe("Artists service", () => {
+    let connection: PoolConnection
+
+    beforeAll(async () => {
+        connection = await pool.getConnection()
+    })
+
     beforeEach(async () => {
-        const connection = await pool.getConnection()
         await connection.query("TRUNCATE artists")
     })
 
     async function createArtistsService() {
-        const connection = await pool.getConnection()
         const artistsRepository = new ArtistsRepository(connection)
         const artistsService = new ArtistsService(artistsRepository)
         return artistsService
@@ -34,5 +39,25 @@ describe("Artists service", () => {
         expect(newArtist.password).toEqual("12121212")
         expect(newArtist.country).toEqual("Ukraine")
         expect(newArtist.artistAge).toEqual(34)
+    })
+
+    test("user should be existed", async () => {
+        const artistData = new SignUpArtistInput("Skillet", "12121212", "USA", 45)
+        const artistsService = await createArtistsService()
+
+        const token = await artistsService.signUpArtist(artistData)
+        const userId = await artistsService.verifyToken(token)
+
+        const newArtist = await artistsService.getArtist(userId)
+
+        const existingArtistToken = await artistsService.signInArtist("Skillet", "12121212")
+        const existingArtistUserId = await artistsService.verifyToken(existingArtistToken)
+
+        const existingArtist = await artistsService.getArtist(existingArtistUserId)
+
+        expect(existingArtist.userName).toEqual(newArtist.userName)
+        expect(existingArtist.password).toEqual(newArtist.password)
+        expect(existingArtist.country).toEqual(newArtist.country)
+        expect(existingArtist.artistAge).toEqual(newArtist.artistAge)
     })
 })

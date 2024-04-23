@@ -10,6 +10,12 @@ export class ArtistsService {
         return token
     }
 
+    async signInArtist(userName: string, password: string) {
+        const userId = await this.artistsRepository.signInArtist(userName, password)
+        const token = await this.artistsRepository.generateToken(userId)
+        return token
+    }
+
     async getArtist(userId: string) {
         const artist = await this.artistsRepository.getArtist(userId)
         return artist

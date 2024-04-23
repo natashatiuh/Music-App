@@ -1,4 +1,4 @@
-import { PoolConnection, RowDataPacket } from "mysql2/promise"
+import { PoolConnection, RowDataPacket, ResultSetHeader } from "mysql2/promise"
 import { SignUpUserInput } from "./inputs/signUpUserInput"
 import { v4 } from "uuid"
 import jwt, { Secret } from "jsonwebtoken"
@@ -66,8 +66,11 @@ export class UsersRepository {
         `
         const params = [newName, userId]
 
-        const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
-        if (rows.length === 0) return false
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
         return true
     }
 
@@ -79,8 +82,11 @@ export class UsersRepository {
         `
         const params = [newPassword, userId, oldPassword]
 
-        const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
-        if (rows.length === 0) return false
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
         return true
     }
 
@@ -92,8 +98,11 @@ export class UsersRepository {
         `
         const params = [newCountry, userId]
 
-        const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
-        if (rows.length === 0) return false
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
         return true
     }
 
@@ -104,8 +113,11 @@ export class UsersRepository {
         `
         const params = [userId]
 
-        const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
-        if (rows.length === 0) return false
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
         return true
     }
 

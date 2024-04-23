@@ -94,4 +94,21 @@ describe("Artists service", () => {
         expect(artist.password).toEqual("12121212")
         expect(chnagedArtist.password).toEqual("11111111")
     })
+
+    test("artist's country should be chnaged", async () => {
+        const artistData = new SignUpArtistInput("O'Torvald", "12121212", "UK", 29)
+        const artistsService = await createArtistsService()
+
+        const token = await artistsService.signUpArtist(artistData)
+        const userId = await artistsService.verifyToken(token)
+
+        const artist = await artistsService.getArtist(userId)
+
+        await artistsService.changeArtistCountry("Ukraine", userId)
+
+        const changedArtist = await artistsService.getArtist(userId)
+
+        expect(artist.country).toEqual("UK")
+        expect(changedArtist.country).toEqual("Ukraine")
+    })
 })

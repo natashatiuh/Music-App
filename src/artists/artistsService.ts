@@ -26,6 +26,11 @@ export class ArtistsService {
         return wasPasswordChanged
     }
 
+    async changeArtistCountry(newCountry: string, userId: string) {
+        const wasCountryChanged = await this.artistsRepository.changeArtistCountry(newCountry, userId)
+        return wasCountryChanged
+    }
+
     async getArtist(userId: string) {
         const artist = await this.artistsRepository.getArtist(userId)
         return artist

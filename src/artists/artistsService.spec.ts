@@ -60,4 +60,21 @@ describe("Artists service", () => {
         expect(existingArtist.country).toEqual(newArtist.country)
         expect(existingArtist.artistAge).toEqual(newArtist.artistAge)
     })
+
+    test("artist's name should be chnaged", async () => {
+        const artistData = new SignUpArtistInput("Dorofeeva", "11111111", "Ukraine", 34)
+        const artistsService = await createArtistsService()
+
+        const token = await artistsService.signUpArtist(artistData)
+        const userId = await artistsService.verifyToken(token)
+
+        const artist = await artistsService.getArtist(userId)
+
+        await artistsService.changeArtistName("Beyonce", userId)
+
+        const changedArtist = await artistsService.getArtist(userId)
+
+        expect(artist.userName).toEqual("Dorofeeva")
+        expect(changedArtist.userName).toEqual("Beyonce")
+    })
 })

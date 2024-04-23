@@ -16,6 +16,11 @@ export class ArtistsService {
         return token
     }
 
+    async changeArtistName(newName: string, userId: string) {
+        const wasArtistNameChanged = await this.artistsRepository.changeArtistName(newName, userId)
+        return wasArtistNameChanged
+    }
+
     async getArtist(userId: string) {
         const artist = await this.artistsRepository.getArtist(userId)
         return artist

@@ -11,6 +11,7 @@ import { signInArtistSchema } from "./schemas/signInArtistSchema"
 import { changeArtistName } from "./schemas/changeArtistNameSchema"
 import { MyRequest } from "../users/requestDefinition"
 import { changeArtistPassword } from "./schemas/changeArtistPasswordSchema"
+import { changeArtistCountrySchema } from "./schemas/changeArtistCountrySchema"
 
 export const router = express.Router()
 
@@ -100,6 +101,27 @@ router.patch("/artist-password", auth(), validation(changeArtistPassword), async
             )
 
             if (!wasPasswordChanged) {
+                res.json({ success: false })
+            } else {
+                res.json({ success: true })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.patch("/artist-country", auth(), validation(changeArtistCountrySchema), async (req, res) => {
+    try {
+        await runInTransaction(async (connection) => {
+            const artistsRepository = new ArtistsRepository(connection)
+            const artistService = new ArtistsService(artistsRepository)
+
+            const { newCountry } = req.body
+            const wasCountryChanged = await artistService.changeArtistCountry(newCountry, (req as MyRequest).userId)
+
+            if (!wasCountryChanged) {
                 res.json({ success: false })
             } else {
                 res.json({ success: true })

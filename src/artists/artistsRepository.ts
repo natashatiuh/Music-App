@@ -72,6 +72,22 @@ export class ArtistsRepository {
         return true
     }
 
+    async changeArtistCountry(newCountry: string, userId: string) {
+        const query = `
+            UPDATE artists
+            SET country = ?
+            WHERE id = ?
+        `
+        const params = [newCountry, userId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
+    }
+
     async getArtist(userId: string) {
         const query = `
             SELECT userName, password, country, artistAge

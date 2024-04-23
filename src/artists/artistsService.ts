@@ -21,6 +21,11 @@ export class ArtistsService {
         return wasArtistNameChanged
     }
 
+    async changeArtistPassword(newPassword: string, oldPassword: string, userId: string) {
+        const wasPasswordChanged = await this.artistsRepository.changeArtistPassword(newPassword, oldPassword, userId)
+        return wasPasswordChanged
+    }
+
     async getArtist(userId: string) {
         const artist = await this.artistsRepository.getArtist(userId)
         return artist

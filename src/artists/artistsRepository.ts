@@ -56,6 +56,22 @@ export class ArtistsRepository {
         return true
     }
 
+    async changeArtistPassword(newPassword: string, oldPassword: string, userId: string) {
+        const query = `
+            UPDATE artists
+            SET password = ?
+            WHERE password = ? AND id = ?
+        `
+        const params = [newPassword, oldPassword, userId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
+    }
+
     async getArtist(userId: string) {
         const query = `
             SELECT userName, password, country, artistAge

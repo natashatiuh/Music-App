@@ -61,7 +61,7 @@ describe("Artists service", () => {
         expect(existingArtist.artistAge).toEqual(newArtist.artistAge)
     })
 
-    test("artist's name should be chnaged", async () => {
+    test("artist's name should be changed", async () => {
         const artistData = new SignUpArtistInput("Dorofeeva", "11111111", "Ukraine", 34)
         const artistsService = await createArtistsService()
 
@@ -76,5 +76,22 @@ describe("Artists service", () => {
 
         expect(artist.userName).toEqual("Dorofeeva")
         expect(changedArtist.userName).toEqual("Beyonce")
+    })
+
+    test("artist's password should be changed", async () => {
+        const artistData = new SignUpArtistInput("Parfeniuk", "12121212", "Ukraine", 21)
+        const artistsService = await createArtistsService()
+
+        const token = await artistsService.signUpArtist(artistData)
+        const userId = await artistsService.verifyToken(token)
+
+        const artist = await artistsService.getArtist(userId)
+
+        await artistsService.changeArtistPassword("11111111", "12121212", userId)
+
+        const chnagedArtist = await artistsService.getArtist(userId)
+
+        expect(artist.password).toEqual("12121212")
+        expect(chnagedArtist.password).toEqual("11111111")
     })
 })

@@ -1,4 +1,4 @@
-import { PoolConnection, RowDataPacket } from "mysql2/promise"
+import { PoolConnection, RowDataPacket, ResultSetHeader } from "mysql2/promise"
 import { SignUpArtistInput } from "./inputs/signUpArtistInput"
 import { v4 } from "uuid"
 import jwt, { Secret } from "jsonwebtoken"
@@ -38,6 +38,22 @@ export class ArtistsRepository {
 
         const userId: string = rows[0]?.id
         return userId
+    }
+
+    async changeArtistName(newName: string, userId: string) {
+        const query = `
+            UPDATE artists
+            SET userName = ?
+            WHERE id = ?
+        `
+        const params = [newName, userId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
     }
 
     async getArtist(userId: string) {

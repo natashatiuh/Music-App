@@ -1,4 +1,5 @@
 import express from "express"
+import { auth } from "../common/middlewares/auth"
 import { validation } from "../common/middlewares/validation"
 import { signUpArtistSchema } from "./schemas/signUpArtistSchema"
 import { PoolConnection } from "mysql2/promise"
@@ -7,6 +8,8 @@ import { ArtistsRepository } from "./artistsRepository"
 import { ArtistsService } from "./artistsService"
 import { SignUpArtistInput } from "./inputs/signUpArtistInput"
 import { signInArtistSchema } from "./schemas/signInArtistSchema"
+import { changeArtistName } from "./schemas/changeArtistNameSchema"
+import { MyRequest } from "../users/requestDefinition"
 
 export const router = express.Router()
 
@@ -55,6 +58,27 @@ router.get("/", validation(signInArtistSchema), async (req, res) => {
             return token
         })
         res.json({ token })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.patch("/artist-name", auth(), validation(changeArtistName), async (req, res) => {
+    try {
+        await runInTransaction(async (connection) => {
+            const artistsRepository = new ArtistsRepository(connection)
+            const artistsService = new ArtistsService(artistsRepository)
+
+            const { newName } = req.body
+            const wasArtistNameChanged = await artistsService.changeArtistName(newName, (req as MyRequest).userId)
+
+            if (!wasArtistNameChanged) {
+                res.json({ success: false })
+            } else {
+                res.json({ success: true })
+            }
+        })
     } catch (error) {
         console.log(error)
         res.json({ success: false })

@@ -111,4 +111,21 @@ describe("Artists service", () => {
         expect(artist.country).toEqual("UK")
         expect(changedArtist.country).toEqual("Ukraine")
     })
+
+    test("artist should be deleted", async () => {
+        const artistData = new SignUpArtistInput("Iryna Bilyk", "12121212", "Ukraine", 52)
+        const artistsService = await createArtistsService()
+
+        const token = await artistsService.signUpArtist(artistData)
+        const userId = await artistsService.verifyToken(token)
+
+        const artist = await artistsService.getArtist(userId)
+
+        await artistsService.deleteArtist(userId)
+
+        const deletedArtist = await artistsService.getArtist(userId)
+
+        expect(artist.userName).toEqual("Iryna Bilyk")
+        expect(deletedArtist.userName).toEqual(undefined)
+    })
 })

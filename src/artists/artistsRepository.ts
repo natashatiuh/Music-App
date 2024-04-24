@@ -88,6 +88,21 @@ export class ArtistsRepository {
         return true
     }
 
+    async deleteArtist(userId: string) {
+        const query = `
+            DELETE FROM artists
+            WHERE id = ?
+        `
+        const params = [userId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
+    }
+
     async getArtist(userId: string) {
         const query = `
             SELECT userName, password, country, artistAge

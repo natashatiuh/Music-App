@@ -31,6 +31,11 @@ export class ArtistsService {
         return wasCountryChanged
     }
 
+    async deleteArtist(userId: string) {
+        const wasArtistDeleted = await this.artistsRepository.deleteArtist(userId)
+        return wasArtistDeleted
+    }
+
     async getArtist(userId: string) {
         const artist = await this.artistsRepository.getArtist(userId)
         return artist

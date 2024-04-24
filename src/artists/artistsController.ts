@@ -132,3 +132,22 @@ router.patch("/artist-country", auth(), validation(changeArtistCountrySchema), a
         res.json({ success: false })
     }
 })
+
+router.delete("/", auth(), async (req, res) => {
+    try {
+        await runInTransaction(async (connection) => {
+            const artistsRepository = new ArtistsRepository(connection)
+            const artistsService = new ArtistsService(artistsRepository)
+
+            const wasArtistDeleted = await artistsService.deleteArtist((req as MyRequest).userId)
+            if (!wasArtistDeleted) {
+                res.json({ success: false })
+            } else {
+                res.json({ success: true })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})

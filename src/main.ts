@@ -9,6 +9,8 @@ async function main() {
     const app = express()
     const port = 4000
 
+    app.use("/photos", express.static("images"))
+
     app.use(express.json())
     app.use(cors())
 

@@ -12,8 +12,21 @@ import { changePasswordSchema } from "./schemas/changePasswordSchema"
 import { changeCountrySchema } from "./schemas/changeCountrySchema"
 import { runInTransaction } from "../common/transaction"
 import multer from "multer"
+import path from "path"
+import { v4 } from "uuid"
 
-const upload = multer({ dest: "images/" })
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "images/users")
+    },
+    filename: (req, file, cb) => {
+        cb(null, v4() + path.extname(file.originalname))
+    },
+})
+
+const upload = multer({
+    storage: storage,
+})
 
 export const router = express.Router()
 

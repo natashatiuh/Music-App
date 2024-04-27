@@ -121,6 +121,22 @@ export class UsersRepository {
         return true
     }
 
+    async addUserPhoto(userId: string, photo?: string) {
+        const query = `
+            UPDATE users
+            SET userPhoto = ?
+            WHERE id = ?
+        `
+        const params = [photo, userId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
+    }
+
     async verifyToken(token: string) {
         const secretKey: Secret = process.env.SECRET_KEY as Secret
         const tokenInfo = jwt.verify(token, secretKey) as jwt.JwtPayload

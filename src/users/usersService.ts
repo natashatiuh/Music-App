@@ -41,6 +41,11 @@ export class UsersService {
         return wasUserDeleted
     }
 
+    async addUserPhoto(userId: string, photo?: string) {
+        const wasPhotoAdded = await this.usersRepository.addUserPhoto(userId, photo)
+        return wasPhotoAdded
+    }
+
     async verifyToken(token: string) {
         const userId: string = await this.usersRepository.verifyToken(token)
         return userId

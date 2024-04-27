@@ -110,4 +110,18 @@ describe("Users Service", () => {
         expect(user.userName).toEqual("Vasyl")
         expect(deletedUser.userName).toEqual(undefined)
     })
+
+    test("user photo should be added", async () => {
+        const userData = new SignUpUserInput("Mark", "12121212", "Italy", 56)
+        const usersService = await createUsersService()
+
+        const token = await usersService.signUpUser(userData)
+        const userId = await usersService.verifyToken(token)
+
+        await usersService.addUserPhoto(userId, "nejdn2ue9euiwje.jpg")
+
+        const user = await usersService.getUser(userId)
+
+        expect(user.userPhoto).toEqual("nejdn2ue9euiwje.jpg")
+    })
 })

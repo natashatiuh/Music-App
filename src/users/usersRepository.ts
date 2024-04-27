@@ -45,7 +45,7 @@ export class UsersRepository {
 
     async getUser(userId: string) {
         const query = `
-            SELECT userName, password, country, userAge FROM users
+            SELECT userName, password, country, userAge, userPhoto FROM users
             WHERE id = ?
         `
         const params = [userId]
@@ -53,7 +53,13 @@ export class UsersRepository {
         const [rows] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
         const userInfo = rows[0]
 
-        const user = new UserEntity(userInfo?.userName, userInfo?.password, userInfo?.country, userInfo?.userAge)
+        const user = new UserEntity(
+            userInfo?.userName,
+            userInfo?.password,
+            userInfo?.country,
+            userInfo?.userAge,
+            userInfo?.userPhoto
+        )
 
         return user
     }
@@ -112,6 +118,22 @@ export class UsersRepository {
             WHERE id = ?
         `
         const params = [userId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
+    }
+
+    async addUserPhoto(userId: string, photo?: string) {
+        const query = `
+            UPDATE users
+            SET userPhoto = ?
+            WHERE id = ?
+        `
+        const params = [photo, userId]
 
         const [rows] = await this.connection.execute(query, params)
 

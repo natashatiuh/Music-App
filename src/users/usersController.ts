@@ -11,6 +11,22 @@ import { changeUserNameSchema } from "./schemas/changeUserNameSchema"
 import { changePasswordSchema } from "./schemas/changePasswordSchema"
 import { changeCountrySchema } from "./schemas/changeCountrySchema"
 import { runInTransaction } from "../common/transaction"
+import multer from "multer"
+import path from "path"
+import { v4 } from "uuid"
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "images/users")
+    },
+    filename: (req, file, cb) => {
+        cb(null, v4() + path.extname(file.originalname))
+    },
+})
+
+const upload = multer({
+    storage: storage,
+})
 
 export const router = express.Router()
 
@@ -144,6 +160,29 @@ router.delete("/", auth(), async (req, res) => {
             if (!wasUserDeleted) {
                 res.json({ success: false })
             } else {
+                res.json({ success: true })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.patch("/photo", auth(), upload.single("photo"), async (req, res) => {
+    try {
+        await runInTransaction(async (connection) => {
+            const usersRepository = new UsersRepository(connection)
+            const usersService = new UsersService(usersRepository)
+
+            const photo = req.file?.filename
+
+            const wasPhotoAdded = await usersService.addUserPhoto((req as MyRequest).userId, photo)
+
+            if (!wasPhotoAdded) {
+                res.json({ success: false })
+            } else {
+                console.log(req.file)
                 res.json({ success: true })
             }
         })

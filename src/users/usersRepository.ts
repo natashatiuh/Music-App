@@ -65,6 +65,7 @@ export class UsersRepository {
     }
 
     async changeUserName(userId: string, newName: string) {
+        if (newName.length <= 1) return false
         const query = `
             UPDATE users
             SET userName = ?
@@ -81,6 +82,10 @@ export class UsersRepository {
     }
 
     async changePassword(userId: string, oldPassword: string, newPassword: string) {
+        const user = this.getUser(userId)
+
+        if ((await user).password != oldPassword) return false
+
         const query = `
             UPDATE users
             SET password = ?

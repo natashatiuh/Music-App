@@ -23,6 +23,7 @@ export class UsersService {
 
     async changeUserName(userId: string, newName: string) {
         const wasUserNameChanged = await this.usersRepository.changeUserName(userId, newName)
+        if (newName.length <= 1) return false
         return wasUserNameChanged
     }
 

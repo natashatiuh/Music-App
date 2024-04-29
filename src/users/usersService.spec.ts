@@ -67,6 +67,20 @@ describe("Users Service", () => {
         expect(newUserNameUser.userName).toEqual("Alena")
     })
 
+    test("username shouldn't be changed", async () => {
+        const userData = new SignUpUserInput("Inna", "12121212", "Italy", 19)
+        const usersService = await createUsersService()
+
+        const token = await usersService.signUpUser(userData)
+        const userId = await usersService.verifyToken(token)
+
+        await usersService.changeUserName(userId, "I")
+
+        const changedUser = await usersService.getUser(userId)
+
+        expect(changedUser.userName).toEqual("Inna")
+    })
+
     test("password should be changed", async () => {
         const userData = new SignUpUserInput("Monika", "11111111", "USA", 34)
         const usersService = await createUsersService()
@@ -81,6 +95,20 @@ describe("Users Service", () => {
         expect(newPasswordUser.password).toEqual("22222222")
     })
 
+    test("password shouldn't be chnaged, currentPassword is not correct", async () => {
+        const userData = new SignUpUserInput("Albina", "12121212", "Kyiv", 26)
+        const usersService = await createUsersService()
+
+        const token = await usersService.signUpUser(userData)
+        const userId = await usersService.verifyToken(token)
+
+        await usersService.changePassword(userId, "11111111", "22222222")
+
+        const changedUser = await usersService.getUser(userId)
+
+        expect(changedUser.password).toEqual("12121212")
+    })
+
     test("country should be changed", async () => {
         const userData = new SignUpUserInput("Stepan", "12345678", "Moldova", 39)
         const usersService = await createUsersService()
@@ -93,6 +121,22 @@ describe("Users Service", () => {
         const newCountryUser = await usersService.getUser(userId)
 
         expect(newCountryUser.country).toEqual("Romania")
+    })
+
+    test("user should be returned", async () => {
+        const userData = new SignUpUserInput("Ivan", "12121212", "Romania", 22)
+        const usersService = await createUsersService()
+
+        const token = await usersService.signUpUser(userData)
+        const userId = await usersService.verifyToken(token)
+
+        const user = await usersService.getUser(userId)
+
+        expect(user.userName).toEqual("Ivan")
+        expect(user.password).toEqual("12121212")
+        expect(user.country).toEqual("Romania")
+        expect(user.userAge).toEqual(22)
+        expect(user.userPhoto).toEqual(null)
     })
 
     test("user should be deleted", async () => {

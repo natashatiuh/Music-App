@@ -191,3 +191,23 @@ router.patch("/photo", auth(), upload.single("photo"), async (req, res) => {
         res.json({ success: false })
     }
 })
+
+router.patch("/delete-photo", auth(), async (req, res) => {
+    try {
+        await runInTransaction(async (connection) => {
+            const usersRepository = new UsersRepository(connection)
+            const usersService = new UsersService(usersRepository)
+
+            const wasUserPhotoDeleted = await usersService.deleteUserPhoto((req as MyRequest).userId)
+
+            if (!wasUserPhotoDeleted) {
+                res.json({ success: false })
+            } else {
+                res.json({ success: true })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})

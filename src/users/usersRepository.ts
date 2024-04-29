@@ -147,6 +147,22 @@ export class UsersRepository {
         return true
     }
 
+    async deleteUserPhoto(userId: string) {
+        const query = `
+            UPDATE users
+            SET userPhoto = NULL
+            WHERE id = ?
+        `
+        const params = [userId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
+    }
+
     async verifyToken(token: string) {
         const secretKey: Secret = process.env.SECRET_KEY as Secret
         const tokenInfo = jwt.verify(token, secretKey) as jwt.JwtPayload

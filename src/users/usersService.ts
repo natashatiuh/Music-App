@@ -47,6 +47,11 @@ export class UsersService {
         return wasPhotoAdded
     }
 
+    async deleteUserPhoto(userId: string) {
+        const wasUserPhotoDeleted = await this.usersRepository.deleteUserPhoto(userId)
+        return wasUserPhotoDeleted
+    }
+
     async verifyToken(token: string) {
         const userId: string = await this.usersRepository.verifyToken(token)
         return userId

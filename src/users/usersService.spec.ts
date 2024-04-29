@@ -168,4 +168,23 @@ describe("Users Service", () => {
 
         expect(user.userPhoto).toEqual("nejdn2ue9euiwje.jpg")
     })
+
+    test("user photo should be changed", async () => {
+        const userData = new SignUpUserInput("Ariel", "12121212", "USA", 19)
+        const usersService = await createUsersService()
+
+        const token = await usersService.signUpUser(userData)
+        const userId = await usersService.verifyToken(token)
+
+        await usersService.addUserPhoto(userId, "photo1.jpg")
+
+        const user = await usersService.getUser(userId)
+
+        await usersService.addUserPhoto(userId, "photo2.jpg")
+
+        const changedUser = await usersService.getUser(userId)
+
+        expect(user.userPhoto).toEqual("photo1.jpg")
+        expect(changedUser.userPhoto).toEqual("photo2.jpg")
+    })
 })

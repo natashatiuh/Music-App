@@ -57,6 +57,9 @@ export class ArtistsRepository {
     }
 
     async changeArtistPassword(newPassword: string, oldPassword: string, userId: string) {
+        const artist = await this.getArtist(userId)
+        if (artist.password != oldPassword) return false
+
         const query = `
             UPDATE artists
             SET password = ?

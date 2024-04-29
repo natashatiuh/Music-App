@@ -82,9 +82,8 @@ export class UsersRepository {
     }
 
     async changePassword(userId: string, oldPassword: string, newPassword: string) {
-        const user = this.getUser(userId)
-
-        if ((await user).password != oldPassword) return false
+        const user = await this.getUser(userId)
+        if (user.password != oldPassword) return false
 
         const query = `
             UPDATE users

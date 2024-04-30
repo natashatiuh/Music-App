@@ -1,4 +1,7 @@
 import express from "express"
+import multer from "multer"
+import path from "path"
+import { v4 } from "uuid"
 import { auth } from "../common/middlewares/auth"
 import { validation } from "../common/middlewares/validation"
 import { signUpArtistSchema } from "./schemas/signUpArtistSchema"
@@ -12,6 +15,21 @@ import { changeArtistName } from "./schemas/changeArtistNameSchema"
 import { MyRequest } from "../users/requestDefinition"
 import { changeArtistPassword } from "./schemas/changeArtistPasswordSchema"
 import { changeArtistCountrySchema } from "./schemas/changeArtistCountrySchema"
+import { UsersRepository } from "../users/usersRepository"
+import { UsersService } from "../users/usersService"
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "images/artists")
+    },
+    filename: (req, file, cb) => {
+        cb(null, v4() + path.extname(file.originalname))
+    },
+})
+
+const upload = multer({
+    storage: storage,
+})
 
 export const router = express.Router()
 
@@ -141,6 +159,28 @@ router.delete("/", auth(), async (req, res) => {
 
             const wasArtistDeleted = await artistsService.deleteArtist((req as MyRequest).userId)
             if (!wasArtistDeleted) {
+                res.json({ success: false })
+            } else {
+                res.json({ success: true })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.patch("/photo", auth(), upload.single("photo"), async (req, res) => {
+    try {
+        await runInTransaction(async (connection) => {
+            const artistsRepository = new ArtistsRepository(connection)
+            const artistsService = new ArtistsService(artistsRepository)
+
+            const photo = req.file?.filename
+
+            const wasPhotoAdded = await artistsService.addArtistPhoto((req as MyRequest).userId, photo)
+
+            if (!wasPhotoAdded) {
                 res.json({ success: false })
             } else {
                 res.json({ success: true })

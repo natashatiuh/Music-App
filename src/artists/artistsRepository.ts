@@ -108,7 +108,7 @@ export class ArtistsRepository {
 
     async getArtist(userId: string) {
         const query = `
-            SELECT userName, password, country, artistAge
+            SELECT userName, password, country, artistAge, artistPhoto
             FROM artists
             WHERE id = ?
         `
@@ -121,10 +121,27 @@ export class ArtistsRepository {
             artistInfo?.userName,
             artistInfo?.password,
             artistInfo?.country,
-            artistInfo?.artistAge
+            artistInfo?.artistAge,
+            artistInfo?.artistPhoto
         )
 
         return artist
+    }
+
+    async addArtistPhoto(userId: string, photo?: string) {
+        const query = `
+            UPDATE artists 
+            SET artistPhoto = ?
+            WHERE id = ?
+        `
+        const params = [photo, userId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
     }
 
     async generateToken(userId: string) {

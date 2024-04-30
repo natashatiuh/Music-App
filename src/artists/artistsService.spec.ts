@@ -142,4 +142,18 @@ describe("Artists service", () => {
         expect(artist.userName).toEqual("Iryna Bilyk")
         expect(deletedArtist.userName).toEqual(undefined)
     })
+
+    test("artist photo should be added", async () => {
+        const artistData = new SignUpArtistInput("Monatik", "12121212", "Moldova", 41)
+        const artistsService = await createArtistsService()
+
+        const token = await artistsService.signUpArtist(artistData)
+        const usersId = await artistsService.verifyToken(token)
+
+        await artistsService.addArtistPhoto(usersId, "photo1.jpg")
+
+        const artist = await artistsService.getArtist(usersId)
+
+        expect(artist.artistPhoto).toEqual("photo1.jpg")
+    })
 })

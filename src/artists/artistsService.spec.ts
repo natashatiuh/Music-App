@@ -156,4 +156,21 @@ describe("Artists service", () => {
 
         expect(artist.artistPhoto).toEqual("photo1.jpg")
     })
+
+    test("artist photo should be changed", async () => {
+        const artistData = new SignUpArtistInput("Klavdia", "12121212", "Ukraine", 21)
+        const artistsService = await createArtistsService()
+
+        const token = await artistsService.signUpArtist(artistData)
+        const userId = await artistsService.verifyToken(token)
+
+        await artistsService.addArtistPhoto(userId, "photo1.jpg")
+        const artist = await artistsService.getArtist(userId)
+
+        await artistsService.addArtistPhoto(userId, "photo2.jpg")
+        const changedArtist = await artistsService.getArtist(userId)
+
+        expect(artist.artistPhoto).toEqual("photo1.jpg")
+        expect(changedArtist.artistPhoto).toEqual("photo2.jpg")
+    })
 })

@@ -41,6 +41,11 @@ export class ArtistsService {
         return artist
     }
 
+    async addArtistPhoto(userId: string, photo?: string) {
+        const wasPhotoAdded = await this.artistsRepository.addArtistPhoto(userId, photo)
+        return wasPhotoAdded
+    }
+
     async verifyToken(token: string) {
         const userId = await this.artistsRepository.verifyToken(token)
         return userId

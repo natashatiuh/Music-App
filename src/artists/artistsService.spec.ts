@@ -173,4 +173,21 @@ describe("Artists service", () => {
         expect(artist.artistPhoto).toEqual("photo1.jpg")
         expect(changedArtist.artistPhoto).toEqual("photo2.jpg")
     })
+
+    test("artist photo should be deleted", async () => {
+        const artistData = new SignUpArtistInput("Daniel", "12121212", "Italy", 32)
+        const artistsService = await createArtistsService()
+
+        const token = await artistsService.signUpArtist(artistData)
+        const userId = await artistsService.verifyToken(token)
+
+        await artistsService.addArtistPhoto(userId, "photo.jpg")
+        const artistWithPhoto = await artistsService.getArtist(userId)
+
+        await artistsService.deleteArtistPhoto(userId)
+        const artistWithoutPhoto = await artistsService.getArtist(userId)
+
+        expect(artistWithPhoto.artistPhoto).toEqual("photo.jpg")
+        expect(artistWithoutPhoto.artistPhoto).toEqual(null)
+    })
 })

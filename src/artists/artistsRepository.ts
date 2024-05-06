@@ -144,6 +144,22 @@ export class ArtistsRepository {
         return true
     }
 
+    async deleteArtistPhoto(userId: string) {
+        const query = `
+            UPDATE artists
+            SET artistPhoto = NULL
+            WHERE id = ?
+        `
+        const params = [userId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
+    }
+
     async generateToken(userId: string) {
         const secretKey: Secret | undefined = process.env.SECRET_KEY as Secret
         const token = jwt.sign({ userId: userId }, secretKey)

@@ -211,3 +211,20 @@ router.patch("/delete-photo", auth(), async (req, res) => {
         res.json({ success: false })
     }
 })
+
+router.get("all-artists", async (req, res) => {
+    try {
+        const artists = await runInTransaction(async (connection) => {
+            const artistsRepository = new ArtistsRepository(connection)
+            const artistsService = new ArtistsService(artistsRepository)
+
+            const artists = await artistsService.getAllArtists()
+
+            return artists
+        })
+        res.json({ artists: artists })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})

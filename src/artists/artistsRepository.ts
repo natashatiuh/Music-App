@@ -160,6 +160,16 @@ export class ArtistsRepository {
         return true
     }
 
+    async getAllArtists() {
+        const query = `
+            SELECT userName, country, artistPhoto, albumsAmount, songsAmount, followersAmount 
+            FROM artists
+        `
+        const [artists] = await this.connection.execute<IGetUserQueryResult[]>(query)
+
+        return artists
+    }
+
     async generateToken(userId: string) {
         const secretKey: Secret | undefined = process.env.SECRET_KEY as Secret
         const token = jwt.sign({ userId: userId }, secretKey)

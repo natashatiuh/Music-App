@@ -14,6 +14,7 @@ import { runInTransaction } from "../common/transaction"
 import multer from "multer"
 import path from "path"
 import { v4 } from "uuid"
+import { followArtistSchema } from "./schemas/followArtistSchema"
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -201,6 +202,27 @@ router.patch("/delete-photo", auth(), async (req, res) => {
             const wasUserPhotoDeleted = await usersService.deleteUserPhoto((req as MyRequest).userId)
 
             if (!wasUserPhotoDeleted) {
+                res.json({ success: false })
+            } else {
+                res.json({ success: true })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.patch("/follow", auth(), validation(followArtistSchema), async (req, res) => {
+    try {
+        await runInTransaction(async (connection) => {
+            const usersRepository = new UsersRepository(connection)
+            const usersService = new UsersService(usersRepository)
+
+            const { artistId } = req.body
+            const isArtistFollowed = await usersService.followArtist((req as MyRequest).userId, artistId)
+
+            if (!isArtistFollowed) {
                 res.json({ success: false })
             } else {
                 res.json({ success: true })

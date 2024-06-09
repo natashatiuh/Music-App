@@ -163,6 +163,22 @@ export class UsersRepository {
         return true
     }
 
+    async followArtist(userId: string, artistId: string) {
+        const query = `
+            UPDATE artists 
+            SET followersAmount = followersAmount + 1
+            WHERE id = ?
+        `
+        const params = [artistId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
+    }
+
     async verifyToken(token: string) {
         const secretKey: Secret = process.env.SECRET_KEY as Secret
         const tokenInfo = jwt.verify(token, secretKey) as jwt.JwtPayload

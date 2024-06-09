@@ -108,7 +108,7 @@ export class ArtistsRepository {
 
     async getArtist(userId: string) {
         const query = `
-            SELECT userName, password, country, artistAge, artistPhoto
+            SELECT userName, password, country, artistAge, artistPhoto, followersAmount
             FROM artists
             WHERE id = ?
         `
@@ -122,7 +122,8 @@ export class ArtistsRepository {
             artistInfo?.password,
             artistInfo?.country,
             artistInfo?.artistAge,
-            artistInfo?.artistPhoto
+            artistInfo?.artistPhoto,
+            artistInfo?.followersAmount
         )
 
         return artist

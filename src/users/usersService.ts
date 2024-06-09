@@ -52,6 +52,11 @@ export class UsersService {
         return wasUserPhotoDeleted
     }
 
+    async followArtist(userId: string, artistId: string) {
+        const isArtistFollowed = await this.usersRepository.followArtist(userId, artistId)
+        return isArtistFollowed
+    }
+
     async verifyToken(token: string) {
         const userId: string = await this.usersRepository.verifyToken(token)
         return userId

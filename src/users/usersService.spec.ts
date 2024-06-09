@@ -5,6 +5,9 @@ import { SignUpUserInput } from "./inputs/signUpUserInput"
 import { UsersRepository } from "./usersRepository"
 import { UsersService } from "./usersService"
 import { PoolConnection } from "mysql2/promise"
+import { SignUpArtistInput } from "../artists/inputs/signUpArtistInput"
+import { ArtistsRepository } from "../artists/artistsRepository"
+import { ArtistsService } from "../artists/artistsService"
 
 jest.setTimeout(60 * 1000)
 
@@ -17,6 +20,7 @@ describe("Users Service", () => {
 
     beforeEach(async () => {
         await connection.query("TRUNCATE users")
+        await connection.query("TRUNCATE artists")
     })
 
     async function createUsersService() {
@@ -26,8 +30,8 @@ describe("Users Service", () => {
     }
 
     test("new user should be created", async () => {
-        const userData = new SignUpUserInput("Marta", "11111111", "Moldova", 28)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Marta", "11111111", "Moldova", 28)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -41,8 +45,8 @@ describe("Users Service", () => {
     })
 
     test("user should be able to sign in", async () => {
-        const userData = new SignUpUserInput("Milana", "12121212", "Ukraine", 23)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Milana", "12121212", "Ukraine", 23)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -54,8 +58,8 @@ describe("Users Service", () => {
     })
 
     test("username should be changed", async () => {
-        const userData = new SignUpUserInput("Olena", "12121212", "Spain", 25)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Olena", "12121212", "Spain", 25)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -68,8 +72,8 @@ describe("Users Service", () => {
     })
 
     test("username shouldn't be changed", async () => {
-        const userData = new SignUpUserInput("Inna", "12121212", "Italy", 19)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Inna", "12121212", "Italy", 19)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -82,8 +86,8 @@ describe("Users Service", () => {
     })
 
     test("password should be changed", async () => {
-        const userData = new SignUpUserInput("Monika", "11111111", "USA", 34)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Monika", "11111111", "USA", 34)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -96,8 +100,8 @@ describe("Users Service", () => {
     })
 
     test("password shouldn't be chnaged, currentPassword is not correct", async () => {
-        const userData = new SignUpUserInput("Albina", "12121212", "Kyiv", 26)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Albina", "12121212", "Kyiv", 26)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -110,8 +114,8 @@ describe("Users Service", () => {
     })
 
     test("country should be changed", async () => {
-        const userData = new SignUpUserInput("Stepan", "12345678", "Moldova", 39)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Stepan", "12345678", "Moldova", 39)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -124,8 +128,8 @@ describe("Users Service", () => {
     })
 
     test("user should be returned", async () => {
-        const userData = new SignUpUserInput("Ivan", "12121212", "Romania", 22)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Ivan", "12121212", "Romania", 22)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -140,8 +144,8 @@ describe("Users Service", () => {
     })
 
     test("user should be deleted", async () => {
-        const userData = new SignUpUserInput("Vasyl", "12121212", "Greece", 29)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Vasyl", "12121212", "Greece", 29)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -156,8 +160,8 @@ describe("Users Service", () => {
     })
 
     test("user photo should be added", async () => {
-        const userData = new SignUpUserInput("Mark", "12121212", "Italy", 56)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Mark", "12121212", "Italy", 56)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -170,8 +174,8 @@ describe("Users Service", () => {
     })
 
     test("user photo should be changed", async () => {
-        const userData = new SignUpUserInput("Ariel", "12121212", "USA", 19)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Ariel", "12121212", "USA", 19)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -189,8 +193,8 @@ describe("Users Service", () => {
     })
 
     test("user photo should be deleted", async () => {
-        const userData = new SignUpUserInput("Monro", "12121212", "UK", 29)
         const usersService = await createUsersService()
+        const userData = new SignUpUserInput("Monro", "12121212", "UK", 29)
 
         const token = await usersService.signUpUser(userData)
         const userId = await usersService.verifyToken(token)
@@ -203,5 +207,32 @@ describe("Users Service", () => {
 
         expect(user.userPhoto).toEqual("photo1.jpg")
         expect(changedUser.userPhoto).toEqual(null)
+    })
+
+    test("user should be followed to artist", async () => {
+        const usersService = await createUsersService()
+
+        const userDataOne = new SignUpUserInput("Jane", "12121212", "Moldova", 23)
+        const userDataTwo = new SignUpUserInput("Monila", "12121212", "Romania", 25)
+
+        const tokenOne = await usersService.signUpUser(userDataOne)
+        const tokenTwo = await usersService.signUpUser(userDataTwo)
+
+        const userIdOne = await usersService.verifyToken(tokenOne)
+        const userIdTwo = await usersService.verifyToken(tokenTwo)
+
+        const artistsRepository = new ArtistsRepository(connection)
+        const artistsService = new ArtistsService(artistsRepository)
+        const artistData = new SignUpArtistInput("Britney", "12121212", "USA", 41)
+
+        const artistToken = await artistsService.signUpArtist(artistData)
+        const artistId = await artistsService.verifyToken(artistToken)
+
+        await usersService.followArtist(userIdOne, artistId)
+        await usersService.followArtist(userIdTwo, artistId)
+
+        const artist = await artistsService.getArtist(artistId)
+
+        expect(artist.followersAmount).toEqual(2)
     })
 })

@@ -12,4 +12,9 @@ export class AlbumsService {
         const album = await this.albumsRepository.getAlbum(albumId)
         return album
     }
+
+    async editAlbumName(newName: string, albumId: string, artistId: string) {
+        const wasAlbumNameChanged = await this.albumsRepository.editAlbumName(newName, albumId, artistId)
+        return wasAlbumNameChanged
+    }
 }

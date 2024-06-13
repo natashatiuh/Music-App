@@ -1,4 +1,4 @@
-import { PoolConnection, RowDataPacket } from "mysql2/promise"
+import { PoolConnection, RowDataPacket, ResultSetHeader } from "mysql2/promise"
 import { v4 } from "uuid"
 import { AlbumEntity } from "./entity/albumEntity"
 
@@ -11,10 +11,10 @@ export class AlbumsRepository {
         const publishedDate = new Date()
 
         const query = `
-            INSERT INTO albums (id, name, artistId, publishedDate)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO albums (id, name, artistId, songsAmount, publishedDate)
+            VALUES (?, ?, ?, ?, ?)
         `
-        const params = [albumId, name, artistId, publishedDate]
+        const params = [albumId, name, artistId, 0, publishedDate]
 
         await this.connection.execute(query, params)
 
@@ -42,6 +42,21 @@ export class AlbumsRepository {
         )
 
         return album
+    }
+
+    async editAlbumName(newName: string, albumId: string, artistId: string) {
+        const query = `
+            UPDATE albums
+            SET name = ?
+            WHERE id = ? AND artistId = ?
+        `
+        const params = [newName, albumId, artistId]
+
+        const [rows] = await this.connection.execute(query, params)
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
     }
 }
 

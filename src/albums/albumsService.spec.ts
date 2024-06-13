@@ -49,4 +49,23 @@ describe("Albums service", () => {
         expect(album.name).toEqual("Big bass")
         expect(album.artistId).toEqual(artistId)
     })
+
+    test("the album's name should be changed", async () => {
+        const albumsService = await createAlbumsService()
+        const artistsService = await createArtistService()
+
+        const artistData = new SignUpArtistInput("Naomi", "12121212", "Italy", 19)
+
+        const token = await artistsService.signUpArtist(artistData)
+        const artistId = await artistsService.verifyToken(token)
+
+        const albumId = await albumsService.addAlbum("Super Model", artistId)
+        const album = await albumsService.getAlbum(albumId)
+
+        await albumsService.editAlbumName("Top Model", albumId, artistId)
+        const editedAlbum = await albumsService.getAlbum(albumId)
+
+        expect(album.name).toEqual("Super Model")
+        expect(editedAlbum.name).toEqual("Top Model")
+    })
 })

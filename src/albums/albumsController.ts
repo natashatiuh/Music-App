@@ -1,4 +1,6 @@
 import express from "express"
+import multer from "multer"
+import path from "path"
 import { PoolConnection } from "mysql2/promise"
 import { pool } from "../common/dbPool"
 import { addAlbumSchema } from "./schemas/addAlbumSchema"
@@ -8,6 +10,21 @@ import { AlbumsRepository } from "./albumsRepository"
 import { AlbumsService } from "./albumsService"
 import { MyRequest } from "../users/requestDefinition"
 import { editAlbumNameSchema } from "./schemas/editAlbumNameSchema"
+import { v4 } from "uuid"
+import { addAlbumPhotoSchema } from "./schemas/addAlbumPhotoSchema"
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "images/albums")
+    },
+    filename: (req, file, cb) => {
+        cb(null, v4() + path.extname(file.originalname))
+    },
+})
+
+const upload = multer({
+    storage: storage,
+})
 
 export const router = express.Router()
 
@@ -55,6 +72,29 @@ router.patch("/", auth(), validation(editAlbumNameSchema), async (req, res) => {
             const wasAlbumNameChanged = await albumsService.editAlbumName(newName, albumId, (req as MyRequest).userId)
 
             if (!wasAlbumNameChanged) {
+                res.json({ success: false })
+            } else {
+                res.json({ success: true })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.patch("/photo", auth(), upload.single("photo"), validation(addAlbumPhotoSchema), async (req, res) => {
+    try {
+        runInTransaction(async (connection) => {
+            const albumsRepository = new AlbumsRepository(connection)
+            const albumsService = new AlbumsService(albumsRepository)
+
+            const photo = req.file?.filename
+
+            const { albumId } = req.body
+            const wasPhotoAdded = await albumsService.addAlbumPhoto(albumId, (req as MyRequest).userId, photo)
+
+            if (!wasPhotoAdded) {
                 res.json({ success: false })
             } else {
                 res.json({ success: true })

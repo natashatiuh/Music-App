@@ -68,4 +68,22 @@ describe("Albums service", () => {
         expect(album.name).toEqual("Super Model")
         expect(editedAlbum.name).toEqual("Top Model")
     })
+
+    test("photo should be added", async () => {
+        const albumsService = await createAlbumsService()
+        const artistsService = await createArtistService()
+
+        const artistData = new SignUpArtistInput("Monetochka", "12121212", "Latvia", 29)
+
+        const token = await artistsService.signUpArtist(artistData)
+        const artistId = await artistsService.verifyToken(token)
+
+        const albumId = await albumsService.addAlbum("Selfharm", artistId)
+
+        await albumsService.addAlbumPhoto(albumId, artistId, "album-photo.jpg")
+
+        const album = await albumsService.getAlbum(albumId)
+
+        expect(album.photo).toEqual("album-photo.jpg")
+    })
 })

@@ -58,6 +58,22 @@ export class AlbumsRepository {
         if (resultSetHeader.affectedRows === 0) return false
         return true
     }
+
+    async addAlbumPhoto(albumId: string, artistId: string, photo?: string) {
+        const query = `
+            UPDATE albums
+            SET photo = ?
+            WHERE id = ? AND artistId = ?
+        `
+        const params = [photo, albumId, artistId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
+    }
 }
 
 interface IGetUserQueryResult extends RowDataPacket {

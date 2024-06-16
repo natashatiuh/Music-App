@@ -17,4 +17,9 @@ export class AlbumsService {
         const wasAlbumNameChanged = await this.albumsRepository.editAlbumName(newName, albumId, artistId)
         return wasAlbumNameChanged
     }
+
+    async addAlbumPhoto(albumId: string, artistId: string, photo?: string) {
+        const wasPhotoAdded = await this.albumsRepository.addAlbumPhoto(albumId, artistId, photo)
+        return wasPhotoAdded
+    }
 }

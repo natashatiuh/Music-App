@@ -86,4 +86,25 @@ describe("Albums service", () => {
 
         expect(album.photo).toEqual("album-photo.jpg")
     })
+
+    test("photo should be changed", async () => {
+        const albumsService = await createAlbumsService()
+        const artistsService = await createArtistService()
+
+        const artistData = new SignUpArtistInput("Rihanna", "12121212", "USA", 34)
+
+        const token = await artistsService.signUpArtist(artistData)
+        const artistId = await artistsService.verifyToken(token)
+
+        const albumId = await albumsService.addAlbum("Umbrella", artistId)
+
+        await albumsService.addAlbumPhoto(albumId, artistId, "umbrella.jpg")
+        const album = await albumsService.getAlbum(albumId)
+
+        await albumsService.addAlbumPhoto(albumId, artistId, "new-umbrella.jpg")
+        const updatedAlbum = await albumsService.getAlbum(albumId)
+
+        expect(album.photo).toEqual("umbrella.jpg")
+        expect(updatedAlbum.photo).toEqual("new-umbrella.jpg")
+    })
 })

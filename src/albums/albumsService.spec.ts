@@ -19,6 +19,7 @@ describe("Albums service", () => {
 
     beforeEach(async () => {
         await connection.query("TRUNCATE albums")
+        await connection.query("TRUNCATE artists")
     })
 
     async function createAlbumsService() {
@@ -106,5 +107,26 @@ describe("Albums service", () => {
 
         expect(album.photo).toEqual("umbrella.jpg")
         expect(updatedAlbum.photo).toEqual("new-umbrella.jpg")
+    })
+
+    test("photo should be deleted", async () => {
+        const albumsService = await createAlbumsService()
+        const artistsService = await createArtistService()
+
+        const artistData = new SignUpArtistInput("Tom Cruze", "12121212", "Spain", 48)
+
+        const token = await artistsService.signUpArtist(artistData)
+        const artistId = await artistsService.verifyToken(token)
+
+        const albumId = await albumsService.addAlbum("Great day", artistId)
+
+        await albumsService.addAlbumPhoto(albumId, artistId, "photo.jpg")
+        const album = await albumsService.getAlbum(albumId)
+
+        await albumsService.deleteAlbumPhoto(albumId, artistId)
+        const updatedAlbum = await albumsService.getAlbum(albumId)
+
+        expect(album.photo).toEqual("photo.jpg")
+        expect(updatedAlbum.photo).toEqual(null)
     })
 })

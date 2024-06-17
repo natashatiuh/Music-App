@@ -22,4 +22,9 @@ export class AlbumsService {
         const wasPhotoAdded = await this.albumsRepository.addAlbumPhoto(albumId, artistId, photo)
         return wasPhotoAdded
     }
+
+    async deleteAlbumPhoto(albumId: string, artistId: string) {
+        const wasPhotoDeleted = await this.albumsRepository.deleteAlbumPhoto(albumId, artistId)
+        return wasPhotoDeleted
+    }
 }

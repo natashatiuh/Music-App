@@ -90,6 +90,21 @@ export class AlbumsRepository {
         if (resultSetHeader.affectedRows === 0) return false
         return true
     }
+
+    async deleteAlbum(albumId: string, artistId: string) {
+        const query = `
+            DELETE FROM albums 
+            WHERE id = ? AND artistId = ?
+        `
+        const params = [albumId, artistId]
+
+        const [rows] = await this.connection.execute(query, params)
+
+        const resultSetHeader = rows as ResultSetHeader
+
+        if (resultSetHeader.affectedRows === 0) return false
+        return true
+    }
 }
 
 interface IGetUserQueryResult extends RowDataPacket {

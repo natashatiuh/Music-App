@@ -105,6 +105,19 @@ export class AlbumsRepository {
         if (resultSetHeader.affectedRows === 0) return false
         return true
     }
+
+    async getArtistAlbums(artistId: string) {
+        const query = `
+            SELECT id, name, artistId, photo, songsAmount
+            FROM albums
+            WHERE artistId = ?
+        `
+        const params = [artistId]
+
+        const [albums] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
+
+        return albums
+    }
 }
 
 interface IGetUserQueryResult extends RowDataPacket {

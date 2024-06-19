@@ -148,4 +148,22 @@ describe("Albums service", () => {
         expect(album.name).toEqual("Espresso")
         expect(deletedAlbum.name).toEqual(undefined)
     })
+
+    test("should receive all artists albums", async () => {
+        const albumsService = await createAlbumsService()
+        const artistsService = await createArtistService()
+
+        const artistData = new SignUpArtistInput("Meghan", "12121212", "Germany", 31)
+
+        const token = await artistsService.signUpArtist(artistData)
+        const artistId = await artistsService.verifyToken(token)
+
+        await albumsService.addAlbum("Album One", artistId)
+        await albumsService.addAlbum("AlbumTwo", artistId)
+        await albumsService.addAlbum("AlbumThree", artistId)
+
+        const artistAlbums = await albumsService.getArtistAlbums(artistId)
+
+        expect(artistAlbums.length).toEqual(3)
+    })
 })

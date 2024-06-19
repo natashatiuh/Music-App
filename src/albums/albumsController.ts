@@ -150,3 +150,20 @@ router.patch("delete-album", auth(), validation(deleteAlbumSchema), async (req, 
         res.json({ success: false })
     }
 })
+
+router.get("/artist-albums", auth(), async (req, res) => {
+    try {
+        const artistAlbums = runInTransaction(async (connection) => {
+            const albumsRepository = new AlbumsRepository(connection)
+            const albumsService = new AlbumsService(albumsRepository)
+
+            const artistAlbums = await albumsService.getArtistAlbums((req as MyRequest).userId)
+
+            return artistAlbums
+        })
+        res.json({ artistAlbums })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})

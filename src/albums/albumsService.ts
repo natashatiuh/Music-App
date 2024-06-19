@@ -32,4 +32,9 @@ export class AlbumsService {
         const wasAlbumDeleted = await this.albumsRepository.deleteAlbum(albumId, artistId)
         return wasAlbumDeleted
     }
+
+    async getArtistAlbums(artistId: string) {
+        const artistAlbums = await this.albumsRepository.getArtistAlbums(artistId)
+        return artistAlbums
+    }
 }

@@ -13,6 +13,7 @@ import { editAlbumNameSchema } from "./schemas/editAlbumNameSchema"
 import { v4 } from "uuid"
 import { addAlbumPhotoSchema } from "./schemas/addAlbumPhotoSchema"
 import { deleteAlbumPhotoSchema } from "./schemas/deleteAlbumPhotoSchema"
+import { deleteAlbumSchema } from "./schemas/deleteAlbumSchema"
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -117,6 +118,28 @@ router.patch("/delete-photo", auth(), validation(deleteAlbumPhotoSchema), async 
             const wasPhotoDeleted = await albumsService.deleteAlbumPhoto(albumId, (req as MyRequest).userId)
 
             if (!wasPhotoDeleted) {
+                res.json({ success: false })
+            } else {
+                res.json({ success: true })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})
+
+router.patch("delete-album", auth(), validation(deleteAlbumSchema), async (req, res) => {
+    try {
+        runInTransaction(async (connection) => {
+            const albumsRepository = new AlbumsRepository(connection)
+            const albumsService = new AlbumsService(albumsRepository)
+
+            const { albumId } = req.body
+
+            const wasAlbumDeleted = await albumsService.deleteAlbum(albumId, (req as MyRequest).userId)
+
+            if (!wasAlbumDeleted) {
                 res.json({ success: false })
             } else {
                 res.json({ success: true })

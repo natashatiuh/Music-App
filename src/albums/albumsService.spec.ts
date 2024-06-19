@@ -129,4 +129,23 @@ describe("Albums service", () => {
         expect(album.photo).toEqual("photo.jpg")
         expect(updatedAlbum.photo).toEqual(null)
     })
+
+    test("album should be deleted", async () => {
+        const albumsService = await createAlbumsService()
+        const artistsService = await createArtistService()
+
+        const artistData = new SignUpArtistInput("Sabrina", "12121212", "USA", 32)
+
+        const token = await artistsService.signUpArtist(artistData)
+        const artistId = await artistsService.verifyToken(token)
+
+        const albumId = await albumsService.addAlbum("Espresso", artistId)
+        const album = await albumsService.getAlbum(albumId)
+
+        await albumsService.deleteAlbum(albumId, artistId)
+        const deletedAlbum = await albumsService.getAlbum(albumId)
+
+        expect(album.name).toEqual("Espresso")
+        expect(deletedAlbum.name).toEqual(undefined)
+    })
 })

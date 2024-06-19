@@ -27,4 +27,9 @@ export class AlbumsService {
         const wasPhotoDeleted = await this.albumsRepository.deleteAlbumPhoto(albumId, artistId)
         return wasPhotoDeleted
     }
+
+    async deleteAlbum(albumId: string, artistId: string) {
+        const wasAlbumDeleted = await this.albumsRepository.deleteAlbum(albumId, artistId)
+        return wasAlbumDeleted
+    }
 }

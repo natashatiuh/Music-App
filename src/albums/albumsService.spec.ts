@@ -166,4 +166,27 @@ describe("Albums service", () => {
 
         expect(artistAlbums.length).toEqual(3)
     })
+
+    test("should receive all albums", async () => {
+        const albumsService = await createAlbumsService()
+        const artistsService = await createArtistService()
+
+        const artistDataOne = new SignUpArtistInput("Shakira", "12121212", "Brazil", 47)
+        const artistDataTwo = new SignUpArtistInput("Ariana", "12121212", "USA", 29)
+
+        const tokenOne = await artistsService.signUpArtist(artistDataOne)
+        const tokenTwo = await artistsService.signUpArtist(artistDataTwo)
+
+        const artistIdOne = await artistsService.verifyToken(tokenOne)
+        const artistIdTwo = await artistsService.verifyToken(tokenTwo)
+
+        await albumsService.addAlbum("Woka", artistIdOne)
+        await albumsService.addAlbum("Latina", artistIdOne)
+        await albumsService.addAlbum("Next", artistIdTwo)
+        await albumsService.addAlbum("Bang", artistIdTwo)
+
+        const albums = await albumsService.getAllAlbums()
+
+        expect(albums.length).toEqual(4)
+    })
 })

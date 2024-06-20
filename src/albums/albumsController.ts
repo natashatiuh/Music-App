@@ -167,3 +167,20 @@ router.get("/artist-albums", auth(), async (req, res) => {
         res.json({ success: false })
     }
 })
+
+router.get("/all-albums", async (req, res) => {
+    try {
+        const albums = runInTransaction(async (connection) => {
+            const albumsRepository = new AlbumsRepository(connection)
+            const albumsService = new AlbumsService(albumsRepository)
+
+            const albums = await albumsService.getAllAlbums()
+
+            return albums
+        })
+        res.json({ albums })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false })
+    }
+})

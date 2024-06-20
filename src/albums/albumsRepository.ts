@@ -108,13 +108,23 @@ export class AlbumsRepository {
 
     async getArtistAlbums(artistId: string) {
         const query = `
-            SELECT id, name, artistId, photo, songsAmount
+            SELECT id, name, artistId, photo, songsAmount, publishedDate
             FROM albums
             WHERE artistId = ?
         `
         const params = [artistId]
 
         const [albums] = await this.connection.execute<IGetUserQueryResult[]>(query, params)
+
+        return albums
+    }
+
+    async getAllAlbums() {
+        const query = `
+            SELECT id, name, artistId, photo, songsAmount, publishedDate
+            FROM albums
+        `
+        const [albums] = await this.connection.execute<IGetUserQueryResult[]>(query)
 
         return albums
     }

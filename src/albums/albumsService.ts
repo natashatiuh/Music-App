@@ -37,4 +37,9 @@ export class AlbumsService {
         const artistAlbums = await this.albumsRepository.getArtistAlbums(artistId)
         return artistAlbums
     }
+
+    async getAllAlbums() {
+        const allAlbums = await this.albumsRepository.getAllAlbums()
+        return allAlbums
+    }
 }
